@@ -1,6 +1,6 @@
 import express from "express";
-import agentesRoutes from "./routes/agentesRoutes";
-import casosRoutes from "./routes/casosRoutes";
+import agentesRoutes from "./routes/agentesRoutes.js";
+import casosRoutes from "./routes/casosRoutes.js";
 
 const app = express();
 const PORT = 3000;
@@ -11,7 +11,7 @@ app.use(agentesRoutes);
 app.use(casosRoutes);
 
 app.get("/", (req, res) => {
-  res.json([{ oi: "oi" }]);
+  res.status(200).json([{ oi: "oi" }]);
 });
 
 app.listen(PORT, () => {
