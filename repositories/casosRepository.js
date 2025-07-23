@@ -31,6 +31,8 @@ export function adicionarCaso(dados) {
 export function atualizarCaso(id, dados) {
   const index_caso = casosRepository.findIndex((caso) => caso.id === id);
 
+  if (index_caso === -1) return undefined;
+
   for (const chave of Object.keys(dados)) {
     casosRepository[index_caso][chave] = dados[chave];
   }
@@ -42,7 +44,10 @@ export function atualizarCaso(id, dados) {
 export function apagarCaso(id) {
   const index_caso = casosRepository.findIndex((caso) => caso.id === id);
 
+  if (index_caso === -1) return false;
+
   casosRepository.splice(index_caso, 1);
+  return true;
 }
 
 // GET /casos?agente_id=uuid

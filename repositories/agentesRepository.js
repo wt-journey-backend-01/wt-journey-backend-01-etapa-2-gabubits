@@ -88,6 +88,8 @@ export function atualizarAgente(id, dados) {
     (agente) => agente.id === id
   );
 
+  if (index_agente === -1) return undefined;
+
   for (const chave of Object.keys(dados)) {
     agentesRepository[index_agente][chave] = dados[chave];
   }
@@ -101,5 +103,8 @@ export function apagarAgente(id) {
     (agente) => agente.id === id
   );
 
+  if (index_agente === -1) return false;
+
   agentesRepository.splice(index_agente, 1);
+  return true;
 }
