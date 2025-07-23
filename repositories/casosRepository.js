@@ -1,4 +1,6 @@
-export const casos = [
+import { v4 as uuidv4 } from "uuid";
+
+const casosRepository = [
   {
     id: "f5fb2ad5-22a8-4cb4-90f2-8733517a0d46",
     titulo: "homicidio",
@@ -8,3 +10,55 @@ export const casos = [
     agente_id: "401bccf5-cf9e-489d-8412-446cd169a0f1",
   },
 ];
+
+// GET /casos
+export function obterTodosCasos() {
+  return casosRepository;
+}
+
+// GET /casos/:id
+export function obterUmCaso(id) {
+  return casosRepository.find((caso) => caso.id === id);
+}
+
+// POST /casos
+export function adicionarCaso(dados) {
+  const index_ultimo = casosRepository.push({ id: uuidv4(), ...dados });
+  return casosRepository[index_ultimo];
+}
+
+// PUT /casos/:id | PATCH /casos/:id
+export function atualizarCaso(id, dados) {
+  const index_caso = casosRepository.findIndex((caso) => caso.id === id);
+
+  for (const chave of Object.keys(dados)) {
+    casosRepository[index_caso][chave] = dados[chave];
+  }
+
+  return casosRepository[index_caso];
+}
+
+// DELETE /casos/:id
+export function apagarCaso(id) {
+  const index_caso = casosRepository.findIndex((caso) => caso.id === id);
+
+  casosRepository.splice(index_caso, 1);
+}
+
+// GET /casos?agente_id=uuid
+export function obterCasosDeUmAgente(agente_id) {
+  return casosRepository.find((caso) => caso.agente_id === agente_id);
+}
+
+// GET /casos?status=aberto
+export function obterCasosEmAberto() {
+  return casosRepository.find(({ status }) => status === "aberto");
+}
+
+// GET /casos/search?q=homicídio
+export function pesquisarCasos(termo) {
+  return casosRepository.find(
+    ({ titulo, descricao }) =>
+      titulo.search(termo) + descricao.search(termo) > -2
+  );
+}
