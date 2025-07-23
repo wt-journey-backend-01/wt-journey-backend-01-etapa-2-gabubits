@@ -5,4 +5,6 @@ const router = express.Router();
 
 router.get("/agentes", agentesController.getAgentes);
 
+router.get("/agentes/:id", agentesController.getAgentesId);
+
 export default router;
