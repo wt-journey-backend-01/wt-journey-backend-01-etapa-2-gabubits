@@ -10,8 +10,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(agentesRoutes);
 app.use(casosRoutes);
 
-app.get("/", (req, res) => {
-  res.status(200).json([{ oi: "oi" }]);
+app.use((req, res) => {
+  res.status(404).json({
+    status: 404,
+    message: "Endpoint inexistente",
+    errors: {
+      endpoint: `O endpoint '${req.url}' não existe nessa aplicação.`,
+    },
+  });
 });
 
 app.listen(PORT, () => {
