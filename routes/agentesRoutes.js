@@ -1,5 +1,8 @@
 import express from "express";
+import * as agentesController from "../controllers/agentesController.js";
 
-const agentesRoutes = express.Router();
+const router = express.Router();
 
-export default agentesRoutes;
+router.get("/agentes", agentesController.getAgentes);
+
+export default router;
