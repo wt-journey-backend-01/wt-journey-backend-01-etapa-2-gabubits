@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+export const idSchema = (id = "id") =>
+  z.uuidv4({
+    error: (issue) =>
+      issue.input === undefined
+        ? `O atributo '${id}' é obrigatório.`
+        : `O atributo '${id}' não representa um UUID válido.`,
+  });
+
 export const agenteSchema = z.object({
   nome: z
     .string("O atributo 'nome' deve ser do tipo string.")
@@ -31,10 +39,5 @@ export const casoSchema = z.object({
         ? "O atributo 'status' é obrigatório"
         : "O atributo 'status' deve ser 'aberto' ou 'solucionado'.",
   }),
-  agente_id: z.uuidv4({
-    error: (issue) =>
-      issue.input === undefined
-        ? "O atributo 'agente_id' é obrigatório."
-        : "O atributo 'agente_id' não representa um UUID válido.",
-  }),
+  agente_id: idSchema("agente_id"),
 });
