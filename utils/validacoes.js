@@ -2,11 +2,14 @@ import { z } from "zod";
 
 export const agenteSchema = z.object({
   nome: z
-    .string("'nome' deve ser do tipo string.")
-    .min(1, "'nome' é um campo obrigatório."),
-  dataDeIncorporacao: z.iso.date(
-    "Formato de 'dataDeIncorporacao' não representa uma data válida."
-  ),
+    .string("O atributo 'nome' deve ser do tipo string.")
+    .min(1, "O atributo 'nome' é obrigatório."),
+  dataDeIncorporacao: z.iso.date({
+    error: (issue) =>
+      issue.input === undefined
+        ? "O atributo 'dataDeIncorporacao' é obrigatório."
+        : "O atributo 'dataDeIncorporacao' não representa uma data válida.",
+  }),
   cargo: z.enum(["inspetor", "delegado"], {
     error: (issue) =>
       issue.input === undefined
@@ -15,4 +18,23 @@ export const agenteSchema = z.object({
   }),
 });
 
-export const casoSchema = z.object({});
+export const casoSchema = z.object({
+  titulo: z
+    .string("O atributo 'titulo' deve ser do tipo string.")
+    .min(1, "O atributo 'titulo' é obrigatório."),
+  descricao: z
+    .string("O atributo 'descricao' deve ser do tipo string.")
+    .min(1, "O atributo 'descricao' é obrigatório."),
+  status: z.enum(["aberto", "solucionado"], {
+    error: (issue) =>
+      issue.input === undefined
+        ? "O atributo 'status' é obrigatório"
+        : "O atributo 'status' deve ser 'aberto' ou 'solucionado'.",
+  }),
+  agente_id: z.uuidv4({
+    error: (issue) =>
+      issue.input === undefined
+        ? "O atributo 'agente_id' é obrigatório."
+        : "O atributo 'agente_id' não representa um UUID válido.",
+  }),
+});
