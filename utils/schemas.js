@@ -18,12 +18,15 @@ export const agenteSchema = z.object({
         ? "O atributo 'dataDeIncorporacao' é obrigatório."
         : "O atributo 'dataDeIncorporacao' não representa uma data válida.",
   }),
-  cargo: z.enum(["inspetor", "delegado"], {
-    error: (issue) =>
-      issue.input === undefined
-        ? "O atributo 'cargo' é obrigatório"
-        : "O atributo 'cargo' deve ser 'inspetor' ou 'delegado'.",
-  }),
+  cargo: z.preprocess(
+    (val) => val.toLowerCase(),
+    z.enum(["inspetor", "delegado"], {
+      error: (issue) =>
+        issue.input === undefined
+          ? "O atributo 'cargo' é obrigatório"
+          : "O atributo 'cargo' deve ser 'inspetor' ou 'delegado'.",
+    })
+  ),
 });
 
 export const casoSchema = z.object({
@@ -33,11 +36,14 @@ export const casoSchema = z.object({
   descricao: z
     .string("O atributo 'descricao' deve ser do tipo string.")
     .min(1, "O atributo 'descricao' é obrigatório."),
-  status: z.enum(["aberto", "solucionado"], {
-    error: (issue) =>
-      issue.input === undefined
-        ? "O atributo 'status' é obrigatório"
-        : "O atributo 'status' deve ser 'aberto' ou 'solucionado'.",
-  }),
+  status: z.preprocess(
+    (val) => val.toLowerCase(),
+    z.enum(["aberto", "solucionado"], {
+      error: (issue) =>
+        issue.input === undefined
+          ? "O atributo 'status' é obrigatório"
+          : "O atributo 'status' deve ser 'aberto' ou 'solucionado'.",
+    })
+  ),
   agente_id: idSchema("agente_id"),
 });
