@@ -47,3 +47,13 @@ export const casoSchema = z.object({
   ),
   agente_id: idSchema("agente_id"),
 });
+
+export const agentePatchSchema = agenteSchema.partial();
+export const casoPatchSchema = casoSchema.partial();
+
+export const cargoOnlySchema = agenteSchema.pick({ cargo: true });
+export const dataIncorpOnlySchema = agenteSchema.pick({
+  dataDeIncorporacao: true,
+});
+
+export const statusOnlySchema = casoSchema.pick({ status: true });
