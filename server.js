@@ -15,7 +15,7 @@ app.use((req, res) => {
     status: 404,
     message: "Endpoint inexistente",
     errors: {
-      endpoint: `O endpoint '${req.url}' não existe nessa aplicação.`,
+      endpoint: `O endpoint '${req.method} ${req.url}' não existe nessa aplicação.`,
     },
   });
 });
