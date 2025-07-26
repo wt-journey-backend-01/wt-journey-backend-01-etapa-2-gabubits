@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import { apagarCasosDeAgente } from "./casosRepository";
 
 const agentesRepository = [
   {
@@ -105,6 +106,7 @@ export function apagarAgente(id) {
 
   if (index_agente === -1) return false;
 
+  apagarCasosDeAgente(id);
   agentesRepository.splice(index_agente, 1);
   return true;
 }
