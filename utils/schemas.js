@@ -4,59 +4,113 @@ const baseIdSchema = (id = "id") => ({
   [id]: z.uuidv4({
     error: (issue) =>
       issue.input === undefined
-        ? `O atributo '${id}' é obrigatório.`
-        : `O atributo '${id}' não representa um UUID válido.`,
+        ? `'${id}' é obrigatório.`
+        : `'${id}' não representa um UUID válido.`,
   }),
 });
 
 export const idSchema = z.object(baseIdSchema());
 
-export const agenteSchema = z.object({
-  nome: z
-    .string("O atributo 'nome' deve ser do tipo string.")
-    .min(1, "O atributo 'nome' é obrigatório."),
-  dataDeIncorporacao: z.iso.date({
-    error: (issue) =>
-      issue.input === undefined
-        ? "O atributo 'dataDeIncorporacao' é obrigatório."
-        : "O atributo 'dataDeIncorporacao' não representa uma data válida.",
-  }),
-  cargo: z.preprocess(
-    (val) => val.toLowerCase(),
-    z.enum(["inspetor", "delegado"], {
-      error: (issue) =>
-        issue.input === undefined
-          ? "O atributo 'cargo' é obrigatório"
-          : "O atributo 'cargo' deve ser 'inspetor' ou 'delegado'.",
+const baseStringSchema = (fieldName) => ({
+  [fieldName]: z
+    .string({
+      error: (issue) => {
+        if (!issue.input) return `${fieldName} é um campo obrigatório.`;
+        if (issue.code === "invalid_type")
+          return `${fieldName} é um campo de tipo string`;
+      },
     })
-  ),
+    .min(1, `${fieldName} não pode ser vazio`),
 });
 
-export const casoSchema = z.object({
-  titulo: z
-    .string("O atributo 'titulo' deve ser do tipo string.")
-    .min(1, "O atributo 'titulo' é obrigatório."),
-  descricao: z
-    .string("O atributo 'descricao' deve ser do tipo string.")
-    .min(1, "O atributo 'descricao' é obrigatório."),
-  status: z.preprocess(
-    (val) => val.toLowerCase(),
-    z.enum(["aberto", "solucionado"], {
-      error: (issue) =>
-        issue.input === undefined
-          ? "O atributo 'status' é obrigatório"
-          : "O atributo 'status' deve ser 'aberto' ou 'solucionado'.",
-    })
-  ),
-  ...baseIdSchema("agente_id"),
+const baseDateSchema = (fieldName) => ({
+  [fieldName]: z.iso.date({
+    error: (issue) => {
+      if (!issue.input) return `${fieldName} é um campo obrigatório.`;
+      if (issue.code === "invalid_type")
+        return `${fieldName} é um campo de tipo string`;
+      if (issue.code === "invalid_format")
+        return `Campo ${fieldName} não representa uma data válida`;
+    },
+  }),
 });
+
+const baseEnumSchema = (fieldName, values) => ({
+  [fieldName]: z
+    .string({
+      error: (issue) => {
+        if (!issue.input) return `${fieldName} é um campo obrigatório.`;
+        if (issue.code === "invalid_type")
+          return `${fieldName} é um campo de tipo string`;
+      },
+    })
+    .pipe(z.transform((val) => val.toLowerCase()))
+    .pipe(
+      z.enum(values, {
+        error: (issue) => {
+          if (issue.code === "invalid_value")
+            return `${fieldName} deve ser ${values.join(" ou ")}.`;
+        },
+      })
+    ),
+});
+
+export const agenteSchema = z.object(
+  {
+    ...baseStringSchema("nome"),
+    ...baseDateSchema("dataDeIncorporacao"),
+    ...baseEnumSchema("cargo", ["inspetor", "delegado"]),
+  },
+  {
+    error: (issue) => {
+      if (issue.code === "invalid_type")
+        return "O corpo de requisição deve ser um OBJETO.";
+    },
+  }
+);
+
+export const casoSchema = z.object(
+  {
+    ...baseStringSchema("titulo"),
+    ...baseStringSchema("descricao"),
+    ...baseEnumSchema("status", ["aberto", "solucionado"]),
+    ...baseIdSchema("agente_id"),
+  },
+  {
+    error: (issue) => {
+      if (issue.code === "invalid_type")
+        return "O corpo de requisição deve ser um OBJETO.";
+    },
+  }
+);
 
 export const agentePatchSchema = agenteSchema.partial();
 export const casoPatchSchema = casoSchema.partial();
 
-export const cargoOnlySchema = agenteSchema.pick({ cargo: true });
-export const dataIncorpOnlySchema = agenteSchema.pick({
-  dataDeIncorporacao: true,
-});
-
 export const statusOnlySchema = casoSchema.pick({ status: true });
+
+export const querySchema = z.union(
+  [
+    z
+      .object({
+        sort: z
+          .templateLiteral([z.enum(["-", ""]), "dataDeIncorporacao"])
+          .transform((val) => (val[0] === "-" ? -1 : 1)),
+      })
+      .strict(),
+    z
+      .object({
+        cargo: z.preprocess(
+          (val) => (val !== undefined ? val.toLowerCase() : undefined),
+          z.enum(["inspetor", "delegado"])
+        ),
+      })
+      .strict(),
+  ],
+  {
+    error: (issue) => {
+      if (issue.code === "invalid_type")
+        return "O corpo de requisição deve ser um OBJETO.";
+    },
+  }
+);
