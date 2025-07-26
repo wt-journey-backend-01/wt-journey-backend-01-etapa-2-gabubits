@@ -26,3 +26,9 @@ export class InvalidFormatError extends APIError {
     super(400, "Atributos inválidos", errors);
   }
 }
+
+export class InvalidQueryError extends APIError {
+  constructor(errors) {
+    super(400, "Query inválida", errors);
+  }
+}
