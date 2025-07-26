@@ -4,49 +4,49 @@ const agentesRepository = [
   {
     id: "401bccf5-cf9e-489d-8412-446cd169a0f1",
     nome: "Rommel Carneiro",
-    dataDeIncorporacao: "1992/10/04",
+    dataDeIncorporacao: "1992-10-04",
     cargo: "delegado",
   },
   {
     id: "a12f3d45-b678-4cde-91f2-2234f5678901",
     nome: "Mariana Lopes",
-    dataDeIncorporacao: "2001/05/23",
+    dataDeIncorporacao: "2001-05-23",
     cargo: "inspetor",
   },
   {
     id: "b23c4e56-c789-5def-82a3-3345g6789012",
     nome: "Carlos Eduardo",
-    dataDeIncorporacao: "2010/08/15",
+    dataDeIncorporacao: "2010-08-15",
     cargo: "delegado",
   },
   {
     id: "c34d5f67-d890-6efa-73b4-4456h7890123",
     nome: "Fernanda Silva",
-    dataDeIncorporacao: "2018/02/10",
+    dataDeIncorporacao: "2018-02-10",
     cargo: "inspetor",
   },
   {
     id: "d45e6g78-e901-7fcb-64c5-5567i8901234",
     nome: "João Batista",
-    dataDeIncorporacao: "1998/11/30",
+    dataDeIncorporacao: "1998-11-30",
     cargo: "delegado",
   },
   {
     id: "e56f7h89-f012-8gdc-55d6-6678j9012345",
     nome: "Patrícia Gomes",
-    dataDeIncorporacao: "2022/07/05",
+    dataDeIncorporacao: "2022-07-05",
     cargo: "inspetor",
   },
   {
     id: "f67g8i90-0123-9hed-46e7-7789k0123456",
     nome: "Lucas Martins",
-    dataDeIncorporacao: "2015/09/12",
+    dataDeIncorporacao: "2015-09-12",
     cargo: "inspetor",
   },
   {
     id: "g78h9j01-1234-0ife-37f8-8890l1234567",
     nome: "Ana Beatriz",
-    dataDeIncorporacao: "2005/04/20",
+    dataDeIncorporacao: "2005-04-20",
     cargo: "delegado",
   },
 ];
@@ -79,7 +79,7 @@ export function obterAgentesOrdenadosPorDataIncorp(ordem) {
 // POST /agentes
 export function adicionarAgente(dados) {
   const index_ultimo = agentesRepository.push({ id: uuidv4(), ...dados });
-  return agentesRepository[index_ultimo];
+  return agentesRepository[index_ultimo - 1];
 }
 
 // PUT /agentes/:id | PATCH /agentes/:id

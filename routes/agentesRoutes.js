@@ -3,8 +3,16 @@ import * as agentesController from "../controllers/agentesController.js";
 
 const router = express.Router();
 
-router.get("/agentes", agentesController.getAgentes);
+router.get("/agentes", agentesController.obterAgentes);
 
-router.get("/agentes/:id", agentesController.getAgentesId);
+router.get("/agentes/:id", agentesController.obterUmAgente);
+
+router.post("/agentes", agentesController.criarAgente);
+
+router.put("/agentes/:id", agentesController.atualizarAgente);
+
+router.patch("/agentes/:id", agentesController.atualizarAgente);
+
+router.delete("/agentes/:id", agentesController.apagarAgente);
 
 export default router;
