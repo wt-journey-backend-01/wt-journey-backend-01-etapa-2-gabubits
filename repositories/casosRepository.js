@@ -67,3 +67,7 @@ export function pesquisarCasos(termo) {
       titulo.search(termo) + descricao.search(termo) > -2
   );
 }
+
+export function apagarCasosDeAgente(agente_id) {
+  casosRepository.filter((caso) => caso.agente_id !== agente_id);
+}
