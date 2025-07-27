@@ -5,7 +5,7 @@ const baseIdSchema = (id = "id") => ({
     error: (issue) =>
       issue.input === undefined
         ? `'${id}' é obrigatório.`
-        : `'${id}' não representa um UUID válido.`,
+        : `'${issue.input}' não representa um UUID válido.`,
   }),
 });
 
