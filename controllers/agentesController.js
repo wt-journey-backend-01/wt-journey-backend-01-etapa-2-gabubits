@@ -1,20 +1,21 @@
 import * as agentesRepository from "../repositories/agentesRepository.js";
+import { apagarCasosDeAgente } from "../repositories/casosRepository.js";
 import * as Errors from "../utils/errorHandler.js";
 import {
   agentePatchSchema,
   agenteSchema,
   idSchema,
-  querySchema,
+  agentesQuerySchema,
 } from "../utils/schemas.js";
 import { z } from "zod";
 
 // GET /agentes | GET /agentes?cargo | GET /agentes?sort
-export function obterAgentes(req, res) {
+export function obterAgentes(req, res, next) {
   if (!Object.keys(req.query).length)
     return res.status(200).json(agentesRepository.obterTodosAgentes());
 
   try {
-    const query_parser = querySchema.safeParse(req.query);
+    const query_parser = agentesQuerySchema.safeParse(req.query);
 
     if (!query_parser.success) {
       throw new Errors.InvalidQueryError({
@@ -30,12 +31,12 @@ export function obterAgentes(req, res) {
 
     res.status(200).json(agentes_encontrados);
   } catch (e) {
-    res.status(e.status).json(e.json);
+    next(e);
   }
 }
 
 // GET /agentes/:id
-export function obterUmAgente(req, res) {
+export function obterUmAgente(req, res, next) {
   try {
     const id_parse = idSchema.safeParse(req.params);
 
@@ -48,17 +49,17 @@ export function obterUmAgente(req, res) {
 
     if (!agente_encontrado)
       throw new Errors.IdNotFoundError({
-        id: `O ID '${id}' não existe`,
+        id: `O ID '${id}' não existe nos agentes`,
       });
 
     res.status(200).json(agente_encontrado);
   } catch (e) {
-    res.status(e.status).json(e.json);
+    next(e);
   }
 }
 
 // POST /agentes
-export function criarAgente(req, res) {
+export function criarAgente(req, res, next) {
   try {
     const body_parse = agenteSchema.safeParse(req.body);
 
@@ -72,12 +73,12 @@ export function criarAgente(req, res) {
 
     res.status(201).json(agentesRepository.adicionarAgente(body_parse.data));
   } catch (e) {
-    res.status(e.status).json(e.json);
+    next(e);
   }
 }
 
 // PUT /agentes/:id | PATCH /agentes/:id
-export function atualizarAgente(req, res) {
+export function atualizarAgente(req, res, next) {
   try {
     const id_parse = idSchema.safeParse(req.params);
 
@@ -106,17 +107,17 @@ export function atualizarAgente(req, res) {
 
     if (!agente_atualizado)
       throw new Errors.IdNotFoundError({
-        id: `O ID '${id_parse.data.id}' não existe`,
+        id: `O ID '${id_parse.data.id}' não existe nos agentes`,
       });
 
     res.status(200).json(agente_atualizado);
   } catch (e) {
-    res.status(e.status).json(e.json);
+    next(e);
   }
 }
 
 // DELETE /agentes/:id
-export function apagarAgente(req, res) {
+export function apagarAgente(req, res, next) {
   try {
     const id_parse = idSchema.safeParse(req.params);
 
@@ -129,11 +130,12 @@ export function apagarAgente(req, res) {
 
     if (!agente_apagado)
       throw new Errors.IdNotFoundError({
-        id: `O ID '${id_parse.data.id}' não existe`,
+        id: `O ID '${id_parse.data.id}' não existe nos agentes`,
       });
 
+    apagarCasosDeAgente(id_parse.data.id);
     res.sendStatus(204);
   } catch (e) {
-    res.status(e.status).json(e.json);
+    next(e);
   }
 }
