@@ -119,7 +119,7 @@ export function obterUmCaso(req, res, next) {
 }
 
 // POST /casos
-export function criarCaso(req, res) {
+export function criarCaso(req, res, next) {
   try {
     const body_parse = casoSchema.safeParse(req.body);
 
@@ -145,7 +145,7 @@ export function criarCaso(req, res) {
 }
 
 // PUT /casos/:id | PATCH /casos/:id
-export function atualizarCaso(req, res) {
+export function atualizarCaso(req, res, next) {
   try {
     const id_parse = idSchema.safeParse(req.params);
 
@@ -191,7 +191,7 @@ export function atualizarCaso(req, res) {
 }
 
 // DELETE /casos/:id
-export function apagarCaso(req, res) {
+export function apagarCaso(req, res, next) {
   try {
     const id_parse = idSchema.safeParse(req.params);
 
