@@ -20,7 +20,7 @@ export function obterAgentes(req, res, next) {
     if (!query_parser.success) {
       throw new Errors.InvalidQueryError({
         query:
-          "Formato de uso da query inválida! É permitido somente cargo ou sort",
+          "Formato de uso da query inválida! É permitido somente cargo ou sort, além de não serem vazias.",
       });
     }
 

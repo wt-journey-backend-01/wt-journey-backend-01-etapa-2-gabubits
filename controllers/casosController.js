@@ -22,7 +22,7 @@ export function obterCasos(req, res, next) {
     if (!query_parser.success) {
       throw new Errors.InvalidQueryError({
         query:
-          "Formato de uso da query inválida! É permitido somente agente_id ou status",
+          "Formato de uso da query inválida! É permitido somente agente_id ou status e não podem ser vazias.",
       });
     }
 
@@ -56,7 +56,8 @@ export function pesquisarCasos(req, res, next) {
 
     if (!query_parser.success) {
       throw new Errors.InvalidQueryError({
-        query: "Formato de uso da query inválida! É permitido somente q",
+        query:
+          "Formato de uso da query inválida! É permitido somente q e não deve ser vazia.",
       });
     }
 
@@ -98,6 +99,10 @@ export function obterAgenteDoCaso(req, res, next) {
 // GET /casos/:id
 export function obterUmCaso(req, res, next) {
   try {
+    if (req.params.id.includes("search")) {
+      return next();
+    }
+
     const id_parse = idSchema.safeParse(req.params);
 
     if (!id_parse.success)
