@@ -10,6 +10,8 @@ const baseIdSchema = (id = "id") => ({
 });
 
 export const idSchema = z.object(baseIdSchema());
+export const agenteIdSchema = z.object(baseIdSchema("agente_id"));
+export const casoIdSchema = z.object(baseIdSchema("caso_id"));
 
 const baseStringSchema = (fieldName) => ({
   [fieldName]: z
@@ -87,30 +89,33 @@ export const casoSchema = z.object(
 export const agentePatchSchema = agenteSchema.partial();
 export const casoPatchSchema = casoSchema.partial();
 
-export const statusOnlySchema = casoSchema.pick({ status: true });
+export const agentesQuerySchema = z.union([
+  z
+    .object({
+      sort: z
+        .templateLiteral([z.enum(["-", ""]), "dataDeIncorporacao"])
+        .transform((val) => (val[0] === "-" ? -1 : 1)),
+    })
+    .strict(),
+  z
+    .object({
+      cargo: z.preprocess(
+        (val) => (val !== undefined ? val.toLowerCase() : undefined),
+        z.enum(["inspetor", "delegado"])
+      ),
+    })
+    .strict(),
+]);
 
-export const querySchema = z.union(
-  [
-    z
-      .object({
-        sort: z
-          .templateLiteral([z.enum(["-", ""]), "dataDeIncorporacao"])
-          .transform((val) => (val[0] === "-" ? -1 : 1)),
-      })
-      .strict(),
-    z
-      .object({
-        cargo: z.preprocess(
-          (val) => (val !== undefined ? val.toLowerCase() : undefined),
-          z.enum(["inspetor", "delegado"])
-        ),
-      })
-      .strict(),
-  ],
-  {
-    error: (issue) => {
-      if (issue.code === "invalid_type")
-        return "O corpo de requisição deve ser um OBJETO.";
-    },
-  }
-);
+export const casosQuerySchema = z.union([
+  z.object({ ...baseIdSchema("agente_id") }).strict(),
+  z
+    .object({
+      ...baseEnumSchema("status", ["aberto"]),
+    })
+    .strict(),
+]);
+
+export const searchQuerySchema = z
+  .object({ ...baseStringSchema("q") })
+  .strict();
