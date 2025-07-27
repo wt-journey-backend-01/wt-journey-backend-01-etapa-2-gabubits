@@ -24,7 +24,7 @@ export function obterUmCaso(id) {
 // POST /casos
 export function adicionarCaso(dados) {
   const index_ultimo = casosRepository.push({ id: uuidv4(), ...dados });
-  return casosRepository[index_ultimo];
+  return casosRepository[index_ultimo - 1];
 }
 
 // PUT /casos/:id | PATCH /casos/:id
@@ -52,22 +52,24 @@ export function apagarCaso(id) {
 
 // GET /casos?agente_id=uuid
 export function obterCasosDeUmAgente(agente_id) {
-  return casosRepository.find((caso) => caso.agente_id === agente_id);
+  return casosRepository.filter((caso) => caso.agente_id === agente_id);
 }
 
 // GET /casos?status=aberto
 export function obterCasosEmAberto() {
-  return casosRepository.find(({ status }) => status === "aberto");
+  return casosRepository.filter(({ status }) => status === "aberto");
 }
 
 // GET /casos/search?q=homicídio
 export function pesquisarCasos(termo) {
-  return casosRepository.find(
+  return casosRepository.filter(
     ({ titulo, descricao }) =>
-      titulo.search(termo) + descricao.search(termo) > -2
+      titulo.search(termo) !== -1 || descricao.search(termo) !== -1
   );
 }
 
 export function apagarCasosDeAgente(agente_id) {
-  casosRepository.filter((caso) => caso.agente_id !== agente_id);
+  casosRepository = casosRepository.filter(
+    (caso) => caso.agente_id !== agente_id
+  );
 }
