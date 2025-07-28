@@ -2,12 +2,18 @@ import express from "express";
 import agentesRoutes from "./routes/agentesRoutes.js";
 import casosRoutes from "./routes/casosRoutes.js";
 import { errorHandler, NotFoundRouteError } from "./utils/errorHandler.js";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import { option } from "./docs/swagger.js";
 
 const app = express();
 const PORT = 3000;
+const specs = swaggerJSDoc(option);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
+
 app.use(agentesRoutes);
 app.use(casosRoutes);
 
