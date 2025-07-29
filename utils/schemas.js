@@ -62,24 +62,11 @@ const baseEnumSchema = (fieldName, values) => ({
     ),
 });
 
-const baseStringLCSchema = (fieldName) => ({
-  [fieldName]: z
-    .string({
-      error: (issue) => {
-        if (!issue.input) return `${fieldName} é um campo obrigatório.`;
-        if (issue.code === "invalid_type")
-          return `${fieldName} é um campo de tipo string`;
-      },
-    })
-    .min(1, `${fieldName} não pode ser vazio`)
-    .toLowerCase(),
-});
-
 export const agenteSchema = z.object(
   {
     ...baseStringSchema("nome"),
     ...baseDateSchema("dataDeIncorporacao"),
-    ...baseStringLCSchema("cargo"),
+    ...baseStringSchema("cargo"),
   },
   {
     error: (issue) => {
@@ -119,7 +106,7 @@ export const agentesQuerySchema = z.union([
         .transform((val) => (val[0] === "-" ? -1 : 1)),
     })
     .strict(),
-  z.object({ ...baseStringLCSchema("cargo") }).strict(),
+  z.object({ ...baseStringSchema("cargo") }).strict(),
 ]);
 
 export const casosQuerySchema = z.union([
@@ -132,5 +119,5 @@ export const casosQuerySchema = z.union([
 ]);
 
 export const searchQuerySchema = z
-  .object({ ...baseStringLCSchema("q") })
+  .object({ ...baseStringSchema("q") })
   .strict();

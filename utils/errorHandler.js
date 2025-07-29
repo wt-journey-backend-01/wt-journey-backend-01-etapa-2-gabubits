@@ -22,7 +22,7 @@ export class IdNotFoundError extends APIError {
 
 export class InvalidFormatError extends APIError {
   constructor(errors) {
-    super(400, "Atributos inválidos", errors);
+    super(400, "Parâmetros inválidos", errors);
   }
 }
 

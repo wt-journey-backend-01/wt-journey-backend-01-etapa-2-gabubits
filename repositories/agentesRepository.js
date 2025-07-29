@@ -14,7 +14,9 @@ export function obterUmAgente(id) {
 
 // GET /agentes?cargo=inspetor
 export function obterAgentesDoCargo(cargo) {
-  return agentesRepository.filter((agente) => agente.cargo === cargo);
+  return agentesRepository.filter(
+    (agente) => agente.cargo.toLowerCase() === cargo.toLowerCase()
+  );
 }
 
 // GET /agentes?sort=dataDeIncorporacao

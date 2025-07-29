@@ -97,7 +97,7 @@ export function obterAgenteDoCaso(req, res, next) {
         agente_id: `O agente_id '${agente_id}' não existe nos agentes`,
       });
 
-    res.status(200).json(obterUmAgente(agente_id));
+    res.status(200).json(agente_existe);
   } catch (e) {
     next(e);
   }
@@ -137,6 +137,8 @@ export function criarCaso(req, res, next) {
 
     if (!body_parse.success) {
       const { formErrors, fieldErrors } = z.flattenError(body_parse.error);
+      if (fieldErrors.agente_id)
+        throw new Errors.InvalidIdError({ agente_id: fieldErrors.agente_id });
       throw new Errors.InvalidFormatError({
         ...(formErrors.length ? { bodyFormat: formErrors } : {}),
         ...fieldErrors,
