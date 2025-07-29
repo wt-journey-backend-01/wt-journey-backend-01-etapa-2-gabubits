@@ -25,7 +25,7 @@ export function atualizarCaso(id, dados) {
   if (index_caso === -1) return undefined;
 
   for (const chave of Object.keys(dados)) {
-    casosRepository[index_caso][chave] = dados[chave];
+    if (chave !== "id") casosRepository[index_caso][chave] = dados[chave];
   }
 
   return casosRepository[index_caso];

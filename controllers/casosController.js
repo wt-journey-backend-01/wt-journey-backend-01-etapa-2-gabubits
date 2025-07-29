@@ -121,7 +121,7 @@ export function obterUmCaso(req, res, next) {
 
     if (!caso_encontrado)
       throw new Errors.IdNotFoundError({
-        id: `O ID '${id}' não existe nos casos`,
+        id: `O ID '${id_parse.data.id}' não existe nos casos`,
       });
 
     res.status(200).json(caso_encontrado);
@@ -184,6 +184,8 @@ export function atualizarCaso(req, res, next) {
 
     if (!body_parse.success) {
       const { formErrors, fieldErrors } = z.flattenError(body_parse.error);
+      if (fieldErrors.agente_id)
+        throw new Errors.InvalidIdError({ agente_id: fieldErrors.agente_id });
       throw new Errors.InvalidFormatError({
         ...(formErrors.length ? { bodyFormat: formErrors } : {}),
         ...fieldErrors,
