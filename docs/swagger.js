@@ -53,14 +53,13 @@ export const option = {
               },
             },
             {
-              name: "status",
+              name: "sort",
               in: "query",
               description:
                 "Obter os agentes ordenados por data de incorporação. Pode ser na ordem ascendente ou descendente.",
               required: false,
               schema: {
                 type: "string",
-                default: "dataDeIncorporacao",
                 enum: ["dataDeIncorporacao", "-dataDeIncorporacao"],
               },
             },
@@ -203,7 +202,6 @@ export const option = {
               required: false,
               schema: {
                 type: "string",
-                default: "aberto",
                 enum: ["aberto", "solucionado"],
               },
             },
@@ -232,6 +230,9 @@ export const option = {
           responses: {
             201: {
               $ref: "#/components/responses/Caso",
+            },
+            404: {
+              $ref: "#/components/responses/InvalidId",
             },
             400: {
               $ref: "#/components/responses/MalformedData",

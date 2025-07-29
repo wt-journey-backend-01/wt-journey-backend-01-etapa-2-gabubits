@@ -99,8 +99,12 @@ export const casoSchema = z.object(
   }
 );
 
-export const agentePatchSchema = agenteSchema.partial();
-export const casoPatchSchema = casoSchema.partial();
+export const agentePatchSchema = z.strictObject(agenteSchema.partial().shape, {
+  error: (issue) => `Chave não reconhecida: '${issue.keys}'`,
+});
+export const casoPatchSchema = z.strictObject(casoSchema.partial().shape, {
+  error: (issue) => `Chave não reconhecida: '${issue.keys}'`,
+});
 
 export const agentesQuerySchema = z.union([
   z
@@ -117,7 +121,7 @@ export const casosQuerySchema = z.union([
   z.object({ ...baseIdSchema("agente_id") }).strict(),
   z
     .object({
-      ...baseEnumSchema("status", ["aberto"]),
+      ...baseEnumSchema("status", ["aberto", "solucionado"]),
     })
     .strict(),
 ]);

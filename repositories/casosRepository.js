@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
-const casosRepository = [];
+let casosRepository = [];
 
 // GET /casos
 export function obterTodosCasos() {
@@ -55,7 +55,8 @@ export function obterCasosEmAberto() {
 export function pesquisarCasos(termo) {
   return casosRepository.filter(
     ({ titulo, descricao }) =>
-      titulo.search(termo) !== -1 || descricao.search(termo) !== -1
+      titulo.toLowerCase().search(termo) !== -1 ||
+      descricao.toLowerCase().search(termo) !== -1
   );
 }
 
