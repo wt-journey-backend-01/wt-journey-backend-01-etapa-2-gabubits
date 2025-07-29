@@ -53,10 +53,11 @@ export function obterCasosEmAberto() {
 
 // GET /casos/search?q=homicídio
 export function pesquisarCasos(termo) {
+  const termoLower = termo.toLowerCase();
   return casosRepository.filter(
     ({ titulo, descricao }) =>
-      titulo.toLowerCase().search(termo) !== -1 ||
-      descricao.toLowerCase().search(termo) !== -1
+      titulo.toLowerCase().includes(termoLower) ||
+      descricao.toLowerCase().includes(termoLower)
   );
 }
 

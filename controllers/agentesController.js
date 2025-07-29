@@ -100,6 +100,8 @@ export function atualizarAgente(req, res, next) {
       });
     }
 
+    delete body_parse.data.id;
+
     const agente_atualizado = agentesRepository.atualizarAgente(
       id_parse.data.id,
       body_parse.data

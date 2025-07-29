@@ -26,15 +26,20 @@ const baseStringSchema = (fieldName) => ({
 });
 
 const baseDateSchema = (fieldName) => ({
-  [fieldName]: z.iso.date({
-    error: (issue) => {
-      if (!issue.input) return `${fieldName} é um campo obrigatório.`;
-      if (issue.code === "invalid_type")
-        return `${fieldName} é um campo de tipo string`;
-      if (issue.code === "invalid_format")
-        return `Campo ${fieldName} não representa uma data válida`;
-    },
-  }),
+  [fieldName]: z.iso
+    .date({
+      error: (issue) => {
+        if (!issue.input) return `${fieldName} é um campo obrigatório.`;
+        if (issue.code === "invalid_type")
+          return `${fieldName} é um campo de tipo string`;
+        if (issue.code === "invalid_format")
+          return `Campo ${fieldName} não representa uma data válida`;
+      },
+    })
+    .refine(
+      (date) => new Date(date + "T00:00:00") <= new Date(),
+      `Campo ${fieldName} não representa uma data válida`
+    ),
 });
 
 const baseEnumSchema = (fieldName, values) => ({

@@ -85,10 +85,17 @@ export function obterAgenteDoCaso(req, res, next) {
 
     if (!caso_encontrado)
       throw new Errors.IdNotFoundError({
-        id: `O ID '${id}' não existe nos casos`,
+        id: `O ID '${caso_id_parse.data.caso_id}' não existe nos casos`,
       });
 
     const { agente_id } = caso_encontrado;
+
+    const agente_existe = obterUmAgente(agente_id);
+
+    if (!agente_existe)
+      throw new Errors.IdNotFoundError({
+        agente_id: `O agente_id '${agente_id}' não existe nos agentes`,
+      });
 
     res.status(200).json(obterUmAgente(agente_id));
   } catch (e) {
@@ -127,6 +134,7 @@ export function obterUmCaso(req, res, next) {
 export function criarCaso(req, res, next) {
   try {
     const body_parse = casoSchema.safeParse(req.body);
+
     if (!body_parse.success) {
       const { formErrors, fieldErrors } = z.flattenError(body_parse.error);
       throw new Errors.InvalidFormatError({
@@ -134,6 +142,15 @@ export function criarCaso(req, res, next) {
         ...fieldErrors,
       });
     }
+
+    delete body_parse.data.id;
+
+    const agente_id_parse = agenteIdSchema.safeParse(body_parse.data);
+
+    if (!agente_id_parse.success)
+      throw new Errors.InvalidIdError(
+        z.flattenError(agente_id_parse.error).fieldErrors
+      );
 
     const agente_existe = obterUmAgente(body_parse.data.agente_id);
 

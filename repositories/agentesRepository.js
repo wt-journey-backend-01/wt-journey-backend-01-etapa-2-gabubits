@@ -19,12 +19,14 @@ export function obterAgentesDoCargo(cargo) {
 
 // GET /agentes?sort=dataDeIncorporacao
 export function obterAgentesOrdenadosPorDataIncorp(ordem) {
-  return agentesRepository.toSorted(
-    (agente1, agente2) =>
-      ordem *
-      (Date.parse(agente1.dataDeIncorporacao) -
-        Date.parse(agente2.dataDeIncorporacao))
-  );
+  return agentesRepository
+    .slice()
+    .sort(
+      (agente1, agente2) =>
+        ordem *
+        (Date.parse(agente1.dataDeIncorporacao) -
+          Date.parse(agente2.dataDeIncorporacao))
+    );
 }
 
 // POST /agentes
