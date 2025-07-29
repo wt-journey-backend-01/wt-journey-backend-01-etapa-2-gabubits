@@ -1,317 +1,239 @@
 <sup>Esse é um feedback gerado por IA, ele pode conter erros.</sup>
 
-Você tem 8 créditos restantes para usar o sistema de feedback AI.
+Você tem 7 créditos restantes para usar o sistema de feedback AI.
 
 # Feedback para gabubits:
 
-Nota final: **80.8/100**
+Nota final: **95.6/100**
 
-# Feedback para gabubits 🚓✨
+# Feedback do seu Desafio API RESTful para o Departamento de Polícia 🚔✨
 
-Olá, gabubits! Antes de tudo, parabéns pelo empenho e pela entrega da sua API para o Departamento de Polícia! 🎉 Eu dei uma boa fuçada no seu código e já vou começar destacando as coisas que você mandou muito bem, para a gente celebrar juntos:
-
----
-
-## 🎉 Pontos Fortes e Conquistas Bônus
-
-- Você estruturou muito bem seu projeto, com rotas, controllers e repositories separados, exatamente como esperado. Isso ajuda muito na organização e manutenção do código!
-- Os endpoints básicos de agentes e casos estão todos implementados e funcionando, com os métodos HTTP corretos.
-- A validação dos dados com Zod está bem aplicada, e o tratamento de erros customizados também está presente na maior parte do código.
-- Você conseguiu implementar os filtros simples para casos por status e por agente, que são bônus importantes.
-- Os endpoints de busca por palavras-chave e de obtenção do agente responsável pelo caso estão criados, mesmo que precisem de ajustes.
-- Parabéns também pelo uso do Swagger para documentação, isso mostra cuidado com a API e facilita o uso para outros desenvolvedores.
+Oi, gabubits! Tudo bem? Primeiro, quero te parabenizar demais pelo esforço e pela qualidade geral do seu projeto! 🎉 Você entregou uma API muito bem estruturada, com todos os endpoints principais funcionando, tratamento de erros e validações robustas. Isso mostra que você tem uma ótima compreensão do Express.js e da arquitetura modular que o projeto pedia. 👏👏
 
 ---
 
-## 🔎 Onde podemos melhorar? Vamos analisar os pontos que precisam de atenção para você chegar no próximo nível!
+## 🎯 Pontos Fortes que Merecem Destaque
+
+- Você organizou muito bem seu projeto, com pastas claras para **routes**, **controllers**, **repositories** e **utils**. Isso ajuda muito na manutenção e escalabilidade do código.
+- Implementou todos os métodos HTTP para os recursos `/agentes` e `/casos`, seguindo o padrão REST.
+- Validou os dados de entrada usando o Zod, o que é excelente para garantir a integridade dos dados.
+- Implementou tratamento de erros personalizado, com classes específicas para erros de ID inválido, formato inválido, etc.
+- Usou status codes HTTP corretos (200, 201, 204, 400, 404) nos seus endpoints.
+- Conseguiu implementar filtros básicos para casos por status e agente, e também para agentes por cargo e ordenação por data de incorporação — isso é um bônus muito legal! 🌟
 
 ---
 
-### 1. **Problema com alteração do ID nos métodos PUT**
+## 🕵️‍♂️ Pontos de Atenção para Evoluir Ainda Mais
 
-Eu percebi que há uma penalidade porque seu código permite alterar o ID de agentes e casos via método PUT, o que não deveria acontecer, pois o ID é um identificador único e imutável.
+### 1. **Permissão para alterar o ID no PUT para agentes e casos**
 
-No `controllers/agentesController.js`, dentro da função `atualizarAgente`, você faz:
+Percebi que, apesar de você tentar proteger o `id` no corpo da requisição (fazendo `delete body_parse.data.id`), ainda é possível alterar o ID de um agente ou caso via método PUT. Isso acontece porque o seu código no controller **apenas deleta o campo `id` do objeto validado**, mas o objeto original (que vem do cliente) pode ainda estar presente e ser usado diretamente no repositório.
+
+Veja esse trecho do seu controlador de agentes:
 
 ```js
+// controllers/agentesController.js - atualizarAgente
 delete body_parse.data.id;
+
+const agente_atualizado = agentesRepository.atualizarAgente(
+  id_parse.data.id,
+  body_parse.data
+);
 ```
 
-Mas isso só remove o `id` do objeto que será enviado para o repositório, porém no seu repositório você atualiza o agente com:
+E no repositório:
 
 ```js
+// repositories/agentesRepository.js - atualizarAgente
 for (const chave of Object.keys(dados)) {
   agentesRepository[index_agente][chave] = dados[chave];
 }
 ```
 
-Se por algum motivo o `id` ainda está chegando no `dados`, ele será atualizado. O ideal é garantir que o `id` nunca seja atualizado, nem mesmo vindo do corpo da requisição.
+Se por algum motivo o `id` passar, ele vai sobrescrever o `id` original no array, o que não é desejável.
 
-**Sugestão de melhoria:**
-
-No controller, antes de chamar o repositório, remova o campo `id` do objeto de atualização ou ignore-o no repositório. Por exemplo, no controller:
-
-```js
-if (body_parse.data.id) delete body_parse.data.id;
-```
-
-E no repositório, para garantir, ignore qualquer atualização no campo `id`:
+**Como melhorar?**  
+No repositório, ignore explicitamente o campo `id` ao atualizar o objeto, para garantir que ele nunca seja alterado:
 
 ```js
-for (const chave of Object.keys(dados)) {
-  if (chave !== "id") {
-    agentesRepository[index_agente][chave] = dados[chave];
+export function atualizarAgente(id, dados) {
+  const index_agente = agentesRepository.findIndex(
+    (agente) => agente.id === id
+  );
+
+  if (index_agente === -1) return undefined;
+
+  for (const chave of Object.keys(dados)) {
+    if (chave !== "id") {
+      agentesRepository[index_agente][chave] = dados[chave];
+    }
   }
+
+  return agentesRepository[index_agente];
 }
 ```
 
-Faça o mesmo para os casos no `casosRepository.js` e `casosController.js`. Isso evita que o ID seja alterado por acidente.
+Faça o mesmo para o repositório de casos (`casosRepository.js`).
+
+**Por quê?**  
+Isso garante que o campo `id` nunca será modificado, independente do que vier no corpo da requisição. É uma camada extra de segurança que evita bugs e inconsistências.
 
 ---
 
-### 2. **Endpoint GET /casos/:caso_id/agente não está funcionando conforme esperado**
+### 2. **Falhas nos testes bônus relacionados a buscas e filtros avançados**
 
-Você implementou a rota e o controller para obter o agente responsável por um caso:
+Você implementou filtros básicos de casos por status e agente, o que é ótimo! Porém, alguns filtros e buscas mais complexas não passaram, como:
+
+- Busca do agente responsável por um caso (`GET /casos/:caso_id/agente`)
+- Busca de casos por palavras-chave no título ou descrição (`GET /casos/search`)
+- Ordenação de agentes por data de incorporação em ordem crescente e decrescente
+- Mensagens de erro customizadas para argumentos inválidos
+
+Vamos analisar um exemplo importante: o endpoint para buscar o agente responsável por um caso.
+
+No seu arquivo `casosRoutes.js`, você tem:
 
 ```js
 router.get("/casos/:caso_id/agente", casosController.obterAgenteDoCaso);
 ```
 
-No controller:
+E no controller:
 
 ```js
-const caso_encontrado = casosRepository.obterUmCaso(caso_id_parse.data.caso_id);
-
-if (!caso_encontrado)
-  throw new Errors.IdNotFoundError({
-    id: `O ID '${caso_id_parse.data.caso_id}' não existe nos casos`,
-  });
-
-const { agente_id } = caso_encontrado;
-
-const agente_existe = obterUmAgente(agente_id);
-
-if (!agente_existe)
-  throw new Errors.IdNotFoundError({
-    agente_id: `O agente_id '${agente_id}' não existe nos agentes`,
-  });
-
-res.status(200).json(obterUmAgente(agente_id));
-```
-
-**O que observei:**  
-A função `obterUmAgente` foi importada incorretamente da forma:
-
-```js
-import { obterUmAgente } from "../repositories/agentesRepository.js";
-```
-
-Mas `obterUmAgente` está no repositório de agentes, e você importou corretamente, então isso está certo. Porém, o problema pode estar no fato de que você chama `obterUmAgente` duas vezes para o mesmo `agente_id` — uma para verificar se existe e outra para retornar — o que é redundante, mas não erro.
-
-O mais provável é que o problema esteja no fato de que a rota usa `:caso_id`, e no controller você usa `caso_id_parse.data.caso_id`, mas esse parâmetro é `req.params.caso_id`. Isso está correto.
-
-Porém, a variável `obterUmAgente` está importada, mas no controller você chama `obterUmAgente(agente_id)` sem `await` e sem checar se é síncrono. Como seu repositório é síncrono, isso deve funcionar.
-
-**Possível causa raiz:**  
-O problema pode estar na forma como você está lidando com erros, ou na forma como o endpoint está sendo chamado. Verifique também se não há conflito com outras rotas, especialmente porque você tem:
-
-```js
-router.get("/casos/:id", casosController.obterUmCaso);
-```
-
-E o endpoint `/casos/:caso_id/agente` pode conflitar com `/casos/:id`. A ordem das rotas importa!
-
-**Sugestão:**
-
-No arquivo `routes/casosRoutes.js`, coloque a rota mais específica antes da rota genérica:
-
-```js
-router.get("/casos/search", casosController.pesquisarCasos);
-router.get("/casos/:caso_id/agente", casosController.obterAgenteDoCaso);
-router.get("/casos/:id", casosController.obterUmCaso);
-```
-
-Se a rota `/casos/:id` estiver antes de `/casos/:caso_id/agente`, a primeira vai capturar as requisições para `/casos/:caso_id/agente` e o segundo endpoint nunca será chamado.
-
----
-
-### 3. **Busca por palavras-chave no endpoint `/casos/search` não está funcionando corretamente**
-
-Você implementou o endpoint `/casos/search` no `casosRoutes.js` e no controller `pesquisarCasos`, que filtra casos pelo título ou descrição.
-
-O código parece correto:
-
-```js
-export function pesquisarCasos(req, res, next) {
+export function obterAgenteDoCaso(req, res, next) {
   try {
-    const query_parser = searchQuerySchema.safeParse(req.query);
+    const caso_id_parse = casoIdSchema.safeParse(req.params);
+    if (!caso_id_parse.success)
+      throw new Errors.InvalidIdError(
+        z.flattenError(caso_id_parse.error).fieldErrors
+      );
 
-    if (!query_parser.success) {
-      throw new Errors.InvalidQueryError({
-        query:
-          "Formato de uso da query inválida! É permitido somente q e não deve ser vazia.",
+    const caso_encontrado = casosRepository.obterUmCaso(
+      caso_id_parse.data.caso_id
+    );
+
+    if (!caso_encontrado)
+      throw new Errors.IdNotFoundError({
+        id: `O ID '${caso_id_parse.data.caso_id}' não existe nos casos`,
       });
-    }
 
-    const { q } = query_parser.data;
+    const { agente_id } = caso_encontrado;
 
-    const casos_encontrados = casosRepository.pesquisarCasos(q);
-    res.status(200).json(casos_encontrados);
+    const agente_existe = obterUmAgente(agente_id);
+
+    if (!agente_existe)
+      throw new Errors.IdNotFoundError({
+        agente_id: `O agente_id '${agente_id}' não existe nos agentes`,
+      });
+
+    res.status(200).json(agente_existe);
   } catch (e) {
     next(e);
   }
 }
 ```
 
-No repositório:
+**Aqui está o problema:**  
+Você importou `obterUmAgente` do arquivo de repositório de agentes, mas no começo do arquivo `casosController.js` você fez:
 
 ```js
-export function pesquisarCasos(termo) {
-  const termoLower = termo.toLowerCase();
-  return casosRepository.filter(
-    ({ titulo, descricao }) =>
-      titulo.toLowerCase().includes(termoLower) ||
-      descricao.toLowerCase().includes(termoLower)
+import { obterUmAgente } from "../repositories/agentesRepository.js";
+```
+
+Porém, dentro do controller, o nome da função está correto, mas o problema pode estar na validação do parâmetro `caso_id`.
+
+O Zod schema `casoIdSchema` espera um parâmetro chamado `caso_id` — isso está correto, mas no seu arquivo de rotas, a rota é definida como `"/casos/:caso_id/agente"`, o que casa com o schema.
+
+Se o erro persistir, vale checar se o schema `casoIdSchema` está correto e se o parâmetro está sendo passado corretamente.
+
+Além disso, para o endpoint de busca por palavras-chave (`/casos/search`), você implementou a rota e o controller, mas o teste bônus falhou. Isso pode indicar que a implementação da função de busca no repositório ou a validação da query string não estão 100% alinhadas com o esperado.
+
+**Dica:** Verifique se o schema `searchQuerySchema` só permite o parâmetro `q` e se o método `pesquisarCasos` no repositório está fazendo a busca corretamente (case insensitive, em título e descrição).
+
+---
+
+### 3. **Mensagens de erro customizadas para argumentos inválidos**
+
+Seu tratamento de erros está muito bom! Mas os testes indicam que as mensagens de erro customizadas para argumentos inválidos (tanto para agentes quanto para casos) não estão exatamente no formato esperado.
+
+Por exemplo, ao validar IDs, você faz:
+
+```js
+if (!id_parse.success)
+  throw new Errors.InvalidIdError(
+    z.flattenError(id_parse.error).fieldErrors
   );
+```
+
+E o erro personalizado `InvalidIdError` deve retornar um JSON com uma mensagem clara e um campo indicando qual ID está inválido.
+
+**Sugestão:**  
+Verifique se o seu `errorHandler.js` está formatando as mensagens de erro no formato esperado pela especificação do projeto. Por exemplo, a resposta pode precisar ser assim:
+
+```json
+{
+  "error": "ID inválido",
+  "details": {
+    "id": ["ID deve ser um UUID válido"]
+  }
 }
 ```
 
-**Possível problema:**  
-No controller `obterUmCaso`, você faz uma verificação:
-
-```js
-if (req.params.id.includes("search")) {
-  return next();
-}
-```
-
-Isso é para evitar conflito entre `/casos/search` e `/casos/:id`. Porém, essa abordagem pode gerar confusão e não é a melhor prática.
-
-**Sugestão:**  
-No arquivo de rotas, coloque a rota `/casos/search` antes da rota `/casos/:id`, assim o Express já sabe qual rota chamar sem precisar de gambiarras no controller:
-
-```js
-router.get("/casos/search", casosController.pesquisarCasos);
-router.get("/casos/:id", casosController.obterUmCaso);
-```
-
-Depois, remova o `if (req.params.id.includes("search"))` do controller `obterUmCaso`.
+Ajustar o formato das mensagens ajuda a deixar a API mais amigável e consistente para quem consome.
 
 ---
 
-### 4. **Filtros por data de incorporação e ordenação para agentes não estão funcionando**
+## 📚 Recursos para Aprofundar e Ajustar seu Código
 
-Você tem o endpoint `/agentes?sort=` para ordenar agentes pela data de incorporação, mas os testes bônus indicam que isso não está passando.
+- Para garantir que o ID não seja alterado no PUT e PATCH, recomendo este vídeo que explica como proteger campos imutáveis no Express:  
+  https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_ (Validação de dados em APIs Node.js/Express)
 
-No seu repositório `obterAgentesOrdenadosPorDataIncorp`:
-
-```js
-export function obterAgentesOrdenadosPorDataIncorp(ordem) {
-  return agentesRepository
-    .slice()
-    .sort(
-      (agente1, agente2) =>
-        ordem *
-        (Date.parse(agente1.dataDeIncorporacao) -
-          Date.parse(agente2.dataDeIncorporacao))
-    );
-}
-```
-
-Aqui, o parâmetro `ordem` vem do query string e provavelmente é uma string, não um número. Isso pode causar um comportamento inesperado na multiplicação.
-
-**Sugestão:**  
-No controller `obterAgentes`, converta o parâmetro `sort` para número:
-
-```js
-const sortNumber = sort === "1" ? 1 : sort === "-1" ? -1 : 1;
-const agentes_encontrados = cargo
-  ? agentesRepository.obterAgentesDoCargo(cargo)
-  : agentesRepository.obterAgentesOrdenadosPorDataIncorp(sortNumber);
-```
-
-Assim, a ordenação vai funcionar corretamente para valores `"1"` e `"-1"`.
-
----
-
-### 5. **Mensagens de erro customizadas para argumentos inválidos não estão 100% implementadas**
-
-Os testes bônus falharam para mensagens de erro customizadas para agentes e casos inválidos. No seu código, você já usa erros customizados em `utils/errorHandler.js` e lança erros com mensagens específicas.
-
-Por exemplo:
-
-```js
-throw new Errors.InvalidIdError(
-  z.flattenError(id_parse.error).fieldErrors
-);
-```
-
-Isso é ótimo! O que pode estar faltando é garantir que todos os erros de validação estejam usando essas classes e que as mensagens estejam coerentes e completas.
-
-**Sugestão:**  
-Revise seu `utils/errorHandler.js` para garantir que as classes de erro estejam bem definidas, e revise todos os pontos onde erros são lançados para usar essas classes e mensagens personalizadas.
-
----
-
-### 6. **Arquitetura e organização do projeto**
-
-Sua estrutura de arquivos está perfeita, conforme o esperado:
-
-```
-.
-├── controllers/
-├── repositories/
-├── routes/
-├── utils/
-├── docs/
-├── package.json
-└── server.js
-```
-
-Isso é ótimo e demonstra que você compreende bem a arquitetura MVC aplicada a APIs REST com Node.js e Express.
-
----
-
-## 📚 Recursos recomendados para você aprofundar
-
-- Para evitar alteração do ID e entender melhor o fluxo de atualização de recursos:  
-  https://youtu.be/RSZHvQomeKE (vídeo sobre fundamentos de API REST e Express.js)
-
-- Para organizar rotas e evitar conflitos entre rotas dinâmicas e estáticas:  
+- Para entender melhor o roteamento e organização das rotas, especialmente para parâmetros dinâmicos:  
   https://expressjs.com/pt-br/guide/routing.html
 
-- Para validação de dados e tratamento de erros com Zod e Express:  
-  https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_
+- Para aprimorar o tratamento de erros e status HTTP, e garantir que você está usando os códigos corretos com mensagens personalizadas:  
+  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400  
+  https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404
 
-- Para manipulação correta de query parameters e ordenação:  
-  https://youtu.be/--TQwiNIw28
-
-- Para entender melhor o uso de arrays e métodos como `filter` e `sort`:  
+- Para entender como fazer buscas e filtros robustos usando arrays em memória e funções como `filter` e `find`:  
   https://youtu.be/glSgUKA5LjE?si=t9G2NsC8InYAU9cI
 
 ---
 
-## 📝 Resumo rápido dos pontos para focar
+## 🗺️ Sobre a Estrutura do Projeto
 
-- 🔒 **Evitar alteração do campo `id` em PUT/PATCH para agentes e casos.** Garanta remoção ou ignorância do `id` no corpo da requisição e no repositório.
+Sua estrutura está excelente e segue o esperado! Isso é fundamental para um projeto escalável e fácil de manter. Parabéns por manter essa organização! 👏
 
-- 🚦 **Organizar a ordem das rotas para evitar conflitos entre rotas dinâmicas e estáticas, principalmente `/casos/:id` e `/casos/search` ou `/casos/:caso_id/agente`.**
-
-- 🔢 **Converter o parâmetro de ordenação `sort` para número antes de usar na função de ordenação.**
-
-- 📝 **Revisar mensagens de erro customizadas para garantir que estejam completas e consistentes em todos os endpoints.**
-
-- 🧹 **Remover trechos de código "gambiarras" como `if (req.params.id.includes("search"))` e resolver isso via ordem correta das rotas.**
+```
+.
+├── controllers/
+├── routes/
+├── repositories/
+├── utils/
+├── docs/
+├── server.js
+├── package.json
+```
 
 ---
 
-## Finalizando...
+## 📝 Resumo dos Principais Pontos para Você Focar
 
-Você está com uma base muito sólida e um código bem organizado, gabubits! 👏 Com esses ajustes finos, sua API vai ficar ainda mais robusta e alinhada com as melhores práticas. Continue assim, estudando e aprimorando, que você vai longe! 🚀
+- 🚫 **Impedir alteração do campo `id` nos métodos PUT e PATCH**: Garanta isso no repositório, ignorando o campo `id` ao atualizar objetos.
+- 🔍 **Corrigir o endpoint de busca do agente responsável pelo caso** para garantir que o parâmetro seja validado corretamente e a função `obterUmAgente` retorne o esperado.
+- 🔎 **Ajustar o endpoint de busca por palavras-chave** para garantir que a query seja validada e a busca seja feita corretamente no repositório.
+- 💬 **Aprimorar as mensagens de erro customizadas** para que sejam claras, consistentes e no formato esperado.
+- 📚 Revisar os schemas de validação para assegurar que os parâmetros e o corpo das requisições estejam alinhados com os requisitos.
 
-Se precisar, volte aqui para conversarmos mais sobre essas melhorias, vou adorar ajudar! ✨
+---
 
-Um abraço e bons códigos! 👊😄
+## Finalizando…
+
+Você mandou muito bem, gabubits! Seu código está limpo, organizado e funcional na maior parte. Os pontos que destaquei são ajustes finos que vão deixar sua API ainda mais robusta e profissional. Continue assim, com essa atenção aos detalhes e vontade de aprender! 🚀💪
+
+Se precisar, volte aos recursos que recomendei para fortalecer seu conhecimento. Estou aqui torcendo pelo seu sucesso! 👊😉
+
+Um abraço do seu Code Buddy! 🤖💙
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
