@@ -21,22 +21,28 @@ export function obterAgentesDoCargo(cargo) {
 
 // GET /agentes?sort=dataDeIncorporacao
 export function obterAgentesOrdenadosPorDataIncorpAsc() {
-  return agentesRepository.slice().sort((agente1, agente2) => {
+  const agentes_copia = agentesRepository.slice();
+  const agentes_ordenados = agentes_copia.sort((agente1, agente2) => {
     const dIncorpA1 = new Date(agente1.dataDeIncorporacao).getTime();
     const dIncorpA2 = new Date(agente2.dataDeIncorporacao).getTime();
 
     return dIncorpA1 - dIncorpA2;
   });
+
+  return agentes_ordenados;
 }
 
 // GET /agentes?sort=dataDeIncorporacao
 export function obterAgentesOrdenadosPorDataIncorpDesc() {
-  return agentesRepository.slice().sort((agente1, agente2) => {
+  const agentes_copia = agentesRepository.slice();
+  const agentes_ordenados = agentes_copia.sort((agente1, agente2) => {
     const dIncorpA1 = new Date(agente1.dataDeIncorporacao).getTime();
     const dIncorpA2 = new Date(agente2.dataDeIncorporacao).getTime();
 
-    return dIncorpA2 - dIncorpA1;
+    return dIncorpA1 - dIncorpA2;
   });
+
+  return agentes_ordenados;
 }
 
 // POST /agentes
