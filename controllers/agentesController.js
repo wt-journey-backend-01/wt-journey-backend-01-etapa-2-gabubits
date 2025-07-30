@@ -25,9 +25,20 @@ export function obterAgentes(req, res, next) {
     }
 
     const { cargo, sort } = query_parser.data;
-    const agentes_encontrados = cargo
-      ? agentesRepository.obterAgentesDoCargo(cargo)
-      : agentesRepository.obterAgentesOrdenadosPorDataIncorp(sort);
+    let agentes_encontrados;
+    if (cargo) {
+      agentes_encontrados = agentesRepository.obterAgentesDoCargo(cargo);
+    }
+
+    if (sort === 1) {
+      agentes_encontrados =
+        agentesRepository.obterAgentesOrdenadosPorDataIncorpAsc();
+    }
+
+    if (sort === -1) {
+      agentes_encontrados =
+        agentesRepository.obterAgentesOrdenadosPorDataIncorpDesc();
+    }
 
     res.status(200).json(agentes_encontrados);
   } catch (e) {

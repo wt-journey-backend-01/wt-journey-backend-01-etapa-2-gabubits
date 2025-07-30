@@ -41,7 +41,7 @@ export function obterCasos(req, res, next) {
     }
 
     if (status) {
-      const casos_encontrados = casosRepository.obterCasosEmAberto();
+      const casos_encontrados = casosRepository.obterCasosStatus(status);
       res.status(200).json(casos_encontrados);
     }
   } catch (e) {

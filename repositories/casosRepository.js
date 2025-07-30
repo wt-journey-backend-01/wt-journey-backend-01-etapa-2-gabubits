@@ -47,8 +47,10 @@ export function obterCasosDeUmAgente(agente_id) {
 }
 
 // GET /casos?status=aberto
-export function obterCasosEmAberto() {
-  return casosRepository.filter(({ status }) => status === "aberto");
+export function obterCasosStatus(status) {
+  return casosRepository.filter(
+    (caso) => caso.status.toLowerCase() === status.toLowerCase()
+  );
 }
 
 // GET /casos/search?q=homicídio
