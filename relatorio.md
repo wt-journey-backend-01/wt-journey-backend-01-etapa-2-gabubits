@@ -2,9 +2,9 @@
 
 # 🧪 Relatório de Avaliação – Journey Levty Etapa 1 - gabubits
 
-**Data:** 30/07/2025 02:50
+**Data:** 30/07/2025 03:21
 
-**Nota Final:** `95.62/100`
+**Nota Final:** `100.00/100`
 **Status:** ✅ Aprovado
 
 ---
@@ -19,11 +19,7 @@
     - Ótimo! A filtragem de casos por `agente_id` (`GET /casos?agente_id=...`) está funcionando corretamente. Isso permite listar casos específicos de cada agente.
 
 ## ❌ Problemas Detectados (Descontos de até 100 pontos)
-- Foram encontrados `2` problemas que acarretam descontos. Veja abaixo os testes penalizados:
-  - ⚠️ **Falhou no teste de penalidade**: `Validation: Consegue alterar ID do agente com método PUT`
-    - **Correção sugerida**: Nenhuma sugestão de correção disponível.
-  - ⚠️ **Falhou no teste de penalidade**: `Validation: Consegue alterar ID do caso com método PUT`
-    - **Correção sugerida**: Nenhuma sugestão de correção disponível.
+- Nenhuma infração grave foi detectada. Muito bom nesse aspecto!
 
 ---
 Continue praticando e caprichando no código. Cada detalhe conta! 💪
