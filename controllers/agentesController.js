@@ -97,6 +97,10 @@ export function criarAgente(req, res, next) {
 // PUT /agentes/:id | PATCH /agentes/:id
 export function atualizarAgente(req, res, next) {
   try {
+    if (req.body.id && req.body.id !== req.params.id)
+      throw new Errors.InvalidFormatError({
+        id: ["Não é permitido alterar o ID do agente"],
+      });
     const id_parse = idSchema.safeParse(req.params);
 
     if (!id_parse.success)

@@ -168,6 +168,11 @@ export function criarCaso(req, res, next) {
 // PUT /casos/:id | PATCH /casos/:id
 export function atualizarCaso(req, res, next) {
   try {
+    if (req.body.id && req.body.id !== req.params.id)
+      throw new Errors.InvalidFormatError({
+        id: ["Não é permitido alterar o ID do caso"],
+      });
+
     const id_parse = idSchema.safeParse(req.params);
 
     if (!id_parse.success)
