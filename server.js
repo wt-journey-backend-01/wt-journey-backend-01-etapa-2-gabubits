@@ -14,8 +14,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
-app.use(agentesRoutes);
-app.use(casosRoutes);
+app.use("/agentes", agentesRoutes);
+app.use("/casos", casosRoutes);
 
 app.use((req, res, next) => {
   next(
