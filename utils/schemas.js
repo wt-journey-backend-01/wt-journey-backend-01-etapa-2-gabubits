@@ -62,6 +62,10 @@ const baseEnumSchema = (fieldName, values) => ({
     ),
 });
 
+export const statusSchema = z.object(
+  baseEnumSchema("status", ["aberto", "solucionado"])
+);
+
 export const agenteSchema = z.object(
   {
     ...baseStringSchema("nome"),

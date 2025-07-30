@@ -3,7 +3,12 @@ import * as casosController from "../controllers/casosController.js";
 
 const router = express.Router();
 
-router.get("/casos", casosController.obterCasos);
+router.get(
+  "/casos",
+  casosController.obterCasos,
+  casosController.obterCasosAgenteId,
+  casosController.obterCasosStatus
+);
 
 router.get("/casos/:caso_id/agente", casosController.obterAgenteDoCaso);
 

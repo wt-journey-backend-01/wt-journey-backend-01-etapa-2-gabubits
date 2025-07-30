@@ -9,41 +9,49 @@ import {
   idSchema,
   casoSchema,
   casoPatchSchema,
+  statusSchema,
 } from "../utils/schemas.js";
 import { z } from "zod";
 
-// GET /casos | GET /casos?agente_id=uuid | GET /casos?status=aberto
 export function obterCasos(req, res, next) {
-  if (!Object.keys(req.query).length)
-    return res.status(200).json(casosRepository.obterTodosCasos());
+  if (req.query.agente_id || req.query.status) return next();
+  res.status(200).json(casosRepository.obterTodosCasos());
+}
+
+// GET /casos | GET /casos?agente_id=uuid | GET /casos?status=aberto
+export function obterCasosAgenteId(req, res, next) {
+  if (!req.query.agente_id) return next();
+
   try {
-    const query_parser = casosQuerySchema.safeParse(req.query);
+    const agente_id_parse = agenteIdSchema.safeParse(req.query);
 
-    if (!query_parser.success) {
-      throw new Errors.InvalidQueryError({
-        query:
-          "Formato de uso da query inválida! É permitido somente agente_id ou status e não podem ser vazias.",
-      });
-    }
+    if (!agente_id_parse.success)
+      throw new Errors.InvalidIdError(
+        z.flattenError(agente_id_parse.error).fieldErrors
+      );
 
-    const { agente_id, status } = query_parser.data;
+    const agente_id = req.query.agente_id;
+    const casos_encontrados = casosRepository.obterCasosDeUmAgente(agente_id);
+    res.status(200).json(casos_encontrados);
+  } catch (e) {
+    next(e);
+  }
+}
 
-    if (agente_id) {
-      const agente_id_parse = agenteIdSchema.safeParse(query_parser.data);
+export function obterCasosStatus(req, res, next) {
+  if (!req.query.status) return next();
 
-      if (!agente_id_parse.success)
-        throw new Errors.InvalidIdError(
-          z.flattenError(agente_id_parse.error).fieldErrors
-        );
+  try {
+    const status_parse = statusSchema.safeParse(req.query);
 
-      const casos_encontrados = casosRepository.obterCasosDeUmAgente(agente_id);
-      res.status(200).json(casos_encontrados);
-    }
+    if (!status_parse.success)
+      throw new Errors.InvalidFormatError(
+        z.flattenError(status_parse.error).fieldErrors
+      );
 
-    if (status) {
-      const casos_encontrados = casosRepository.obterCasosStatus(status);
-      res.status(200).json(casos_encontrados);
-    }
+    const status = req.query.status;
+    const casos_encontrados = casosRepository.obterCasosStatus(status);
+    res.status(200).json(casos_encontrados);
   } catch (e) {
     next(e);
   }
