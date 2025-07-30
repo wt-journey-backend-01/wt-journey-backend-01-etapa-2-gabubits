@@ -10,7 +10,7 @@ router.get(
   casosController.obterCasosStatus
 );
 
-router.get("/:caso_id/agente", casosController.obterAgenteDoCaso);
+router.get("/:id/agente", casosController.obterAgenteDoCaso);
 
 router.get(
   "/search",

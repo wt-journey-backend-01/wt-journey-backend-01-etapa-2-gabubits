@@ -79,13 +79,11 @@ export function obterAgenteDoCaso(req, res, next) {
         z.flattenError(caso_id_parse.error).fieldErrors
       );
 
-    const caso_encontrado = casosRepository.obterUmCaso(
-      caso_id_parse.data.caso_id
-    );
+    const caso_encontrado = casosRepository.obterUmCaso(caso_id_parse.data.id);
 
     if (!caso_encontrado)
       throw new Errors.IdNotFoundError({
-        id: `O ID '${caso_id_parse.data.caso_id}' não existe nos casos`,
+        id: `O ID '${caso_id_parse.data.id}' não existe nos casos`,
       });
 
     const { agente_id } = caso_encontrado;

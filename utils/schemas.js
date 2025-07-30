@@ -11,7 +11,7 @@ const baseIdSchema = (id = "id") => ({
 
 export const idSchema = z.object(baseIdSchema());
 export const agenteIdSchema = z.object(baseIdSchema("agente_id"));
-export const casoIdSchema = z.object(baseIdSchema("caso_id"));
+export const casoIdSchema = z.object(baseIdSchema("id"));
 
 const baseStringSchema = (fieldName) => ({
   [fieldName]: z
