@@ -60,15 +60,15 @@ export function obterCasosStatus(req, res, next) {
 // GET /casos/search?q=homicídio
 export function paginaSearch(req, res, next) {
   const q = req.query.q;
-  if (q !== undefined) return next();
+  if (q && q.length !== 0) return next();
   return next();
 }
 
 export function pesquisarCasos(req, res, next) {
   const q = req.query.q;
-  if (q !== undefined) return next();
+  if (q === undefined) return next();
 
-  const casos_encontrados = casosRepository.pesquisarCasos(req.query.q);
+  const casos_encontrados = casosRepository.pesquisarCasos(q);
   res.status(200).json(casos_encontrados);
 }
 
