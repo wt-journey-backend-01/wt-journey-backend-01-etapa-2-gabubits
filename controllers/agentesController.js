@@ -5,30 +5,36 @@ import {
   agentePatchSchema,
   agenteSchema,
   idSchema,
-  agentesQuerySchema,
+  sortSchema,
 } from "../utils/schemas.js";
 import { z } from "zod";
 
-// GET /agentes | GET /agentes?cargo | GET /agentes?sort
 export function obterAgentes(req, res, next) {
-  if (!Object.keys(req.query).length)
-    return res.status(200).json(agentesRepository.obterTodosAgentes());
+  if (req.query.cargo || req.query.sort) return next();
+  res.status(200).json(agentesRepository.obterTodosAgentes());
+}
+// GET /agentes | GET /agentes?cargo | GET /agentes?sort
+export function obterAgentesCargo(req, res, next) {
+  if (!req.query.cargo) return next();
 
+  const cargo = req.query.cargo;
+  const agentes_encontrados = agentesRepository.obterAgentesDoCargo(cargo);
+  res.status(200).json(agentes_encontrados);
+}
+
+export function obterAgentesSort(req, res, next) {
+  if (!req.query.sort) return next();
   try {
-    const query_parser = agentesQuerySchema.safeParse(req.query);
+    const sort_parse = sortSchema.safeParse(req.query);
 
-    if (!query_parser.success) {
-      throw new Errors.InvalidQueryError({
-        query:
-          "Formato de uso da query inválida! É permitido somente cargo ou sort, além de não serem vazias.",
-      });
-    }
+    if (!sort_parse.success)
+      throw new Errors.InvalidQueryError(
+        z.flattenError(sort_parse.error).fieldErrors
+      );
 
-    const { cargo, sort } = query_parser.data;
+    const sort = sort_parse.data.sort;
+
     let agentes_encontrados;
-    if (cargo) {
-      agentes_encontrados = agentesRepository.obterAgentesDoCargo(cargo);
-    }
 
     if (sort === 1) {
       agentes_encontrados =

@@ -3,7 +3,12 @@ import * as agentesController from "../controllers/agentesController.js";
 
 const router = express.Router();
 
-router.get("/agentes", agentesController.obterAgentes);
+router.get(
+  "/agentes",
+  agentesController.obterAgentes,
+  agentesController.obterAgentesCargo,
+  agentesController.obterAgentesSort
+);
 
 router.get("/agentes/:id", agentesController.obterUmAgente);
 

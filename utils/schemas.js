@@ -65,6 +65,11 @@ const baseEnumSchema = (fieldName, values) => ({
 export const statusSchema = z.object(
   baseEnumSchema("status", ["aberto", "solucionado"])
 );
+export const sortSchema = z.object({
+  sort: z
+    .templateLiteral([z.enum(["-", ""]), "dataDeIncorporacao"])
+    .transform((val) => (val[0] === "-" ? -1 : 1)),
+});
 
 export const agenteSchema = z.object(
   {
