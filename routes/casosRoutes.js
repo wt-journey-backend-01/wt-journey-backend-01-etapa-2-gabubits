@@ -12,7 +12,11 @@ router.get(
 
 router.get("/:caso_id/agente", casosController.obterAgenteDoCaso);
 
-router.get("/search", casosController.pesquisarCasos);
+router.get(
+  "/search",
+  casosController.paginaSearch,
+  casosController.pesquisarCasos
+);
 
 router.get("/:id", casosController.obterUmCaso);
 

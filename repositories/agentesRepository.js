@@ -39,7 +39,7 @@ export function obterAgentesOrdenadosPorDataIncorpDesc() {
     const dIncorpA1 = new Date(agente1.dataDeIncorporacao).getTime();
     const dIncorpA2 = new Date(agente2.dataDeIncorporacao).getTime();
 
-    return dIncorpA1 - dIncorpA2;
+    return dIncorpA2 - dIncorpA1;
   });
 
   return agentes_ordenados;

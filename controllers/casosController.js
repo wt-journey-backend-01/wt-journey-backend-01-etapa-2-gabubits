@@ -58,24 +58,16 @@ export function obterCasosStatus(req, res, next) {
 }
 
 // GET /casos/search?q=homicídio
+export function paginaSearch(req, res, next) {
+  if (req.query.q) return next();
+  return next();
+}
+
 export function pesquisarCasos(req, res, next) {
-  try {
-    const query_parser = searchQuerySchema.safeParse(req.query);
+  if (!req.query.q) return next();
 
-    if (!query_parser.success) {
-      throw new Errors.InvalidQueryError({
-        query:
-          "Formato de uso da query inválida! É permitido somente q e não deve ser vazia.",
-      });
-    }
-
-    const { q } = query_parser.data;
-
-    const casos_encontrados = casosRepository.pesquisarCasos(q);
-    res.status(200).json(casos_encontrados);
-  } catch (e) {
-    next(e);
-  }
+  const casos_encontrados = casosRepository.pesquisarCasos(req.query.q);
+  res.status(200).json(casos_encontrados);
 }
 
 // GET /casos/:caso_id/agente

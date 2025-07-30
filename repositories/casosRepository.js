@@ -56,11 +56,12 @@ export function obterCasosStatus(status) {
 // GET /casos/search?q=homicídio
 export function pesquisarCasos(termo) {
   const termoLower = termo.toLowerCase();
-  return casosRepository.filter(
+  const casosFiltrados = casosRepository.filter(
     ({ titulo, descricao }) =>
       titulo.toLowerCase().includes(termoLower) ||
       descricao.toLowerCase().includes(termoLower)
   );
+  return casosFiltrados;
 }
 
 export function apagarCasosDeAgente(agente_id) {
